@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Oche Coach</title>
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/dcpoprad/dc-poprad-assets/main/OC_logo.png?v=2">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700;900&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.json">  
+</head>
+<body>
+  <button id="langToggle" class="top-btn lang-toggle">EN | SK</button>
+  <button id="infoToggle" class="top-btn info-toggle">GO PREMIUM</button>
+
+  <div id="onboardingView" class="app-container hidden">
+    <header class="lobby-header"><img src="https://raw.githubusercontent.com/dcpoprad/dc-poprad-assets/main/OC_logo.png" alt="Oche Coach Logo" class="app-logo onboarding-logo"></header>
+    <main class="onboarding-content">
+      <h1 id="t_welcomeTitle">WELCOME</h1>
+      <p id="t_welcomeText">Pure zen training. No counting, no scoring. Just you and the board.</p>
+    </main>
+    <nav class="action-area" style="flex-direction: column; align-items: center;">
+      <button id="btnPremiumLogin" class="btn-primary btn-green-primary" style="margin-bottom: 15px;">PREMIUM</button>
+      <button id="btnUnderstand" class="btn-secondary-small" style="margin-top: 0;">30-MIN FREE TRIAL</button>
+    </nav>
+  </div>
+
+  <div id="lobbyView" class="app-container hidden">
+    <header class="lobby-header dynamic-logo-header"><img src="https://raw.githubusercontent.com/dcpoprad/dc-poprad-assets/main/OC_logo.png" alt="Oche Coach Logo" class="app-logo"></header>
+    <div class="selection-group"><h3 id="t_duration">DURATION</h3>
+      <div class="tile-grid">
+        <div class="tile time-tile" data-val="30">30 MIN</div><div class="tile time-tile" data-val="45">45 MIN</div><div class="tile time-tile" data-val="60">60 MIN</div><div class="tile time-tile" data-val="90">90 MIN</div><div class="tile time-tile ultimate-mode" data-val="180">ULTIMATE<br>3 x 60 MIN</div>
+      </div>
+    </div>
+    <div class="selection-group"><h3 id="t_focus">FOCUS</h3>
+      <div class="tile-grid">
+        <div class="tile focus-tile" data-val="Singles">Singles</div><div class="tile focus-tile" data-val="Scoring">Scoring</div><div class="tile focus-tile" data-val="Doubles">Doubles</div><div class="tile focus-tile" data-val="Checkouts">Checkouts</div><div class="tile focus-tile mix-tile" id="mixTile" data-val="Mix">Mix</div>
+      </div>
+    </div>
+    <div class="selection-group"><h3 id="t_tournament">TOURNAMENT</h3>
+      <div class="tile-grid">
+        <div class="tile tourney-tile" id="warmUpSeqBtn" data-val="15" style="flex: 1 1 100%; font-size: 1.2rem; padding: 15px 10px;">15 MIN WARM-UP</div>
+      </div>
+    </div>
+    <div class="action-area"><button id="enterBtn" class="btn-primary" disabled>GO TO OCHE</button></div>
+  </div>
+
+  <div id="hintView" class="app-container hidden">
+    <button class="btn-top-corner back-trigger" style="left: 15px; right: auto;"><span class="x-icon">←</span><span class="x-text" id="t_back">BACK</span></button>
+    <header class="hint-header"><h1 id="hintCategory">FOCUS</h1><h2 id="hintTitle">GAME NAME</h2></header>
+    <main class="hint-content"><p id="hintLongText">Description...</p></main>
+    <nav class="controls-vertical"><button id="btnChangeGame" class="btn-secondary">CHANGE</button><button id="hintReadyBtn" class="btn-primary">GAME ON!</button></nav>
+  </div>
+
+  <div id="timerView" class="app-container hidden">
+    <button class="btn-top-corner exit-trigger"><span class="x-icon">✕</span><span class="x-text" id="t_exit">EXIT</span></button>
+    <header class="timer-header">
+      <h1 id="blockCategory">FOCUS</h1>
+      <h2 id="blockTitle">GAME NAME</h2>
+      <p id="blockShortInstructions">Instructions</p>
+      <div id="coachTipBox" class="coach-tip hidden"><span class="coach-tip-label">COACH TIP:</span><p id="t_coachTipText">Medzi blokmi si daj krátku pauzu. Vypni sústredenie, napi sa a zves ruky.</p></div>
+    </header>
+    <main>
+      <div class="timer-wrapper">
+        <svg id="completionRing" class="hidden" viewBox="0 0 200 200">
+          <defs><mask id="ringMask"><circle cx="100" cy="100" r="90" stroke="white" stroke-width="16" fill="none" stroke-dasharray="565.49" stroke-dashoffset="565.49" transform="rotate(-90 100 100)" class="mask-circle" /></mask></defs>
+          <circle cx="100" cy="100" r="90" stroke="rgba(255,255,255,0.05)" stroke-width="12" fill="none" stroke-dasharray="2.5 6.9247" />
+          <circle cx="100" cy="100" r="90" stroke="#22c55e" stroke-width="12" fill="none" stroke-dasharray="2.5 6.9247" mask="url(#ringMask)" />
+        </svg>
+
+        <div id="activeTargetDisplay" class="active-target hidden"></div>
+
+        <div id="timerDisplay" class="timer">00:00</div>
+      </div>
+    </main>
+    <nav class="controls-vertical"><button id="mainBtn" class="btn-primary">|| PAUSE</button></nav>
+  </div>
+
+  <div id="summaryView" class="app-container hidden">
+    <header class="lobby-header dynamic-logo-header"><img src="https://raw.githubusercontent.com/dcpoprad/dc-poprad-assets/main/OC_logo.png" alt="Oche Coach Logo" class="app-logo"></header>
+    <main style="width: 100%; max-width: 400px; margin: auto;">
+      <h1 id="t_summaryTitle" style="font-family: 'Oswald', sans-serif; font-size: 2.3rem; margin: 0 0 5px 0; text-transform: uppercase; color: var(--gold); letter-spacing: 1.5px;">SESSION COMPLETE</h1>
+      <h2 id="summaryDynamicText" style="font-family: 'Oswald', sans-serif; color: #fff; font-size: 1.1rem; margin: 0 0 25px 0; text-transform: uppercase;">Great 60-minute session!</h2>
+      <div class="coach-tip" style="margin-bottom: 25px; border-color: rgba(223, 177, 91, 0.4);">
+        <span class="coach-tip-label" style="color: var(--gold);">COACH:</span>
+        <p id="t_summaryQuote">"You are on a great path..."</p>
+      </div>
+      <div style="background-color: var(--bg-dark); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; display: flex; justify-content: space-around; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+         <div>
+            <div id="t_statsWeek" style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">This week:</div>
+            <div id="statWeekVal" style="color: var(--copper); font-family: 'Oswald', sans-serif; font-size: 1.5rem; font-weight: 700;">0h 0m</div>
+         </div>
+         <div style="width: 1px; background-color: rgba(255,255,255,0.1);"></div>
+         <div>
+            <div id="t_statsMonth" style="color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">This month:</div>
+            <div id="statMonthVal" style="color: var(--copper); font-family: 'Oswald', sans-serif; font-size: 1.5rem; font-weight: 700;">0h 0m</div>
+         </div>
+      </div>
+    </main>
+    <nav class="action-area"><button id="btnDone" class="btn-primary">DONE</button></nav>
+  </div>
+
+  <footer class="seal-area">
+    <strong>Darts Colosseum ®</strong> | Official Data System<br><span class="seal-sub">© 2026 | System Architecture & Design by Tomáš Strnisko</span>
+  </footer>
+  
+  <div id="authModal" class="app-container hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+    <div class="auth-box" style="background: var(--bg-main); border: 1px solid var(--copper); border-radius: 12px; padding: 25px 20px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box;">
+      <button id="closeAuthBtn" class="btn-top-corner" style="top: 10px; right: 10px; opacity: 1;"><span class="x-icon" style="color: var(--copper);">✕</span></button>
+      
+      <div class="auth-tabs" style="display: flex; margin-bottom: 20px; border-bottom: 1px solid rgba(213, 179, 154, 0.3);">
+        <button id="tabLogin" class="auth-tab active">PRIHLÁSENIE</button>
+        <button id="tabRegister" class="auth-tab">NOVÉ KONTO</button>
+      </div>
+      
+      <form id="loginForm" class="auth-form">
+        <input type="email" id="loginEmail" placeholder="E-mail" required class="auth-input">
+        <input type="password" id="loginPassword" placeholder="Heslo" required class="auth-input">
+        <button type="submit" id="btnLoginSubmit" class="btn-primary" style="width: 100%; margin-top: 15px; font-size: 1.2rem;">PRIHLÁSIŤ SA</button>
+        <div style="text-align: center; margin-top: 15px;">
+          <a id="btnShowReset" href="#" style="color: var(--text-dim); text-decoration: none; font-size: 0.9rem; font-family: 'Roboto', sans-serif;">Zabudnuté heslo?</a>
+        </div>
+      </form>
+
+      <form id="resetForm" class="auth-form hidden">
+        <p style="color: var(--text-dim); font-size: 0.9rem; margin-top: 0; margin-bottom: 15px; text-align: center;">Zadaj svoj e-mail a pošleme ti link na obnovu hesla.</p>
+        <input type="email" id="resetEmail" placeholder="E-mail" required class="auth-input">
+        <button type="submit" id="btnResetSubmit" class="btn-primary" style="width: 100%; margin-top: 15px; font-size: 1.2rem;">ODOSLAŤ LINK</button>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <input type="text" id="regFirstName" placeholder="Meno" required class="auth-input">
+        <input type="text" id="regLastName" placeholder="Priezvisko" required class="auth-input">
+        <input type="email" id="regEmail" placeholder="E-mail" required class="auth-input">
+        <input type="password" id="regPassword" placeholder="Heslo" required class="auth-input" minlength="6">
+        <input type="password" id="regPasswordConfirm" placeholder="Potvrď heslo" required class="auth-input" minlength="6">
+        <button type="submit" id="btnRegSubmit" class="btn-primary" style="width: 100%; margin-top: 15px; font-size: 1.2rem;">VYTVORIŤ KONTO</button>
+      </form>
+      
+      <div id="authMessage" style="margin-top: 15px; font-size: 0.9rem; color: var(--gold); min-height: 1.2em; text-align: center; font-family: 'Roboto', sans-serif;"></div>
+    </div>
+  </div>
+
+    <div id="profileModal" class="app-container hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+    <div class="auth-box" style="background: var(--bg-main); border: 1px solid var(--copper); border-radius: 12px; padding: 25px 20px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); box-sizing: border-box; text-align: center;">
+      <button id="closeProfileBtn" class="btn-top-corner" style="top: 10px; right: 10px; opacity: 1;"><span class="x-icon" style="color: var(--copper);">✕</span></button>
+      
+      <h2 id="profName" style="font-family: 'Oswald', sans-serif; color: #fff; font-size: 1.8rem; margin: 0 0 5px 0; text-transform: uppercase;">MENO</h2>
+      <p id="profEmail" style="color: var(--text-dim); font-family: 'Roboto', sans-serif; font-size: 0.9rem; margin: 0 0 20px 0;">email</p>
+      
+      <div id="profStatusBox" style="background: var(--bg-dark); border: 1px solid var(--gold); border-radius: 8px; padding: 12px; margin-bottom: 25px;">
+        <div id="profStatus" style="color: var(--gold); font-family: 'Oswald', sans-serif; font-size: 1.3rem; font-weight: 700; letter-spacing: 1px;">★ PREMIUM ★</div>
+        <div id="profDays" style="color: var(--text-main); font-size: 0.85rem; margin-top: 5px; font-weight: 300;">Načítavam...</div>
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; margin-bottom: 25px;">
+         <div style="flex: 1;">
+            <div id="t_profWeek" style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Tento týždeň</div>
+            <div id="profWeekVal" style="color: var(--copper); font-family: 'Oswald', sans-serif; font-size: 1.3rem; font-weight: 700;">...</div>
+         </div>
+         <div style="flex: 1; border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">
+            <div id="t_profMonth" style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Tento mesiac</div>
+            <div id="profMonthVal" style="color: var(--copper); font-family: 'Oswald', sans-serif; font-size: 1.3rem; font-weight: 700;">...</div>
+         </div>
+         <div style="flex: 1;">
+            <div id="t_profTotal" style="color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Celkovo</div>
+            <div id="profTotalVal" style="color: var(--copper); font-family: 'Oswald', sans-serif; font-size: 1.3rem; font-weight: 700;">...</div>
+         </div>
+      </div>
+      
+      <a href="#" id="btnLogout" style="color: var(--text-dim); font-family: 'Roboto', sans-serif; text-decoration: none; font-size: 0.85rem; transition: color 0.2s;">Odhlásiť sa</a>
+    </div>
+  </div>
+
+  <div id="salesModal" class="app-container hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box;">
+  <div class="auth-box" style="background: var(--bg-main); border: 1px solid #22c55e; border-radius: 12px; padding: 25px 20px; width: 100%; max-width: 400px; position: relative; box-shadow: 0 10px 30px rgba(34, 197, 94, 0.2); box-sizing: border-box; text-align: center; display: flex; flex-direction: column; align-items: center;">
+    <button id="closeSalesBtn" class="btn-top-corner" style="top: 10px; right: 10px; opacity: 1;"><span class="x-icon" style="color: var(--text-dim);">✕</span></button>
+    
+    <h2 id="t_salesTitle" style="font-family: 'Oswald', sans-serif; color: #22c55e; font-size: clamp(1.2rem, 6.5vw, 1.8rem); margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 0.5px; width: 100%; white-space: nowrap;">★ OCHE COACH PREMIUM ★</h2>
+    
+    <p id="t_salesSubtitle" style="color: #fff; font-family: 'Roboto', sans-serif; font-size: 1.05rem; line-height: 1.4; margin: 0 0 20px 0; font-weight: 500; width: 100%;">
+      Odomkni všetky časy a hry, dlhodobé štatistiky tréningu a celý svoj potenciál.
+    </p>
+
+    <ul style="color: var(--text-dim); font-family: 'Roboto', sans-serif; font-size: 0.95rem; line-height: 1.5; padding-left: 20px; margin-bottom: 25px; width: 100%; box-sizing: border-box; text-align: left;">
+      <li id="t_salesPoint1" style="margin-bottom: 8px;">Prístup k 45, 60, 90 min. blokom a Ultimátnemu režimu</li>
+      <li id="t_salesPoint2" style="margin-bottom: 8px;">Odomknutý najkomplexnejší MIX režim</li>
+      <li id="t_salesPoint3">Podrobné ukladanie histórie a štatistík</li>
+    </ul>
+
+    <div style="background: var(--bg-dark); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 15px 20px; margin: 0 auto 20px auto; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 200px;">
+      <div style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 2.2rem; font-weight: 700; line-height: 1;">9,90 € <span style="font-size: 1.1rem; color: var(--text-dim); font-weight: 400;">/ rok</span></div>
+      <div id="t_salesPriceSub" style="color: var(--text-dim); font-size: 0.85rem; margin-top: 5px;">(Menej ako 0,85 € mesačne)</div>
+    </div>
+
+    <button id="btnBuyPremium" class="btn-primary btn-green-primary" style="width: 100%; margin: 0 0 15px 0; font-size: 1.2rem;">ZÍSKAŤ PREMIUM</button>
+    
+    <a href="#" id="btnSalesToProfile" style="color: var(--text-dim); font-family: 'Roboto', sans-serif; text-decoration: underline; font-size: 0.85rem; transition: color 0.2s;">Môj profil / Odhlásiť sa</a>
+  </div>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <script src="script.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>  
+
+<div id="pwaInstallModal" class="" style="position: fixed; bottom: 15px; left: 50%; transform: translate(-50%, 0); width: calc(100% - 30px); max-width: 450px; background: var(--bg-dark); z-index: 9999; display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; box-sizing: border-box; border: 1px solid var(--copper); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+    
+  <div style="display: flex; align-items: center; overflow: hidden; flex-grow: 1;">
+    <img src="https://raw.githubusercontent.com/dcpoprad/dc-poprad-assets/main/OC_logo.png" style="height: 42px; width: 42px; border-radius: 10px; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.5); margin-right: 12px;">
+    
+    <div style="display: flex; flex-direction: column; overflow: hidden;">
+      <h2 id="t_installTitle" style="font-family: 'Roboto', sans-serif; color: #ffffff; font-size: 0.95rem; margin: 0 0 3px 0; font-weight: 700; letter-spacing: 0;">Nainštaluj si appku</h2>
+      <p id="t_installText" style="color: var(--text-dim); font-family: 'Roboto', sans-serif; font-size: 0.8rem; margin: 0;">Pridaj si appku na plochu</p>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; flex-shrink: 0; margin-left: 10px;">
+    <button id="btnInstallConfirm" style="background-color: var(--color-red); color: #ffffff; border: none; border-radius: 8px; padding: 8px 14px; font-family: 'Roboto', sans-serif; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: opacity 0.2s;">INSTALL</button>
+    <button id="closeInstallBtn" style="background: none; border: none; color: var(--text-dim); font-size: 0.9rem; cursor: pointer; padding: 5px 0 5px 12px; display: flex; align-items: center; justify-content: center; opacity: 0.7; transition: opacity 0.2s;">✕</button>
+  </div>
+</div>
+</body>
+</html>

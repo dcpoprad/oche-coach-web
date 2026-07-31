@@ -1,0 +1,15 @@
+{
+  "name": "Oche Coach",
+  "short_name": "OcheCoach",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#1e2d3a",
+  "theme_color": "#dfb15b",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/dcpoprad/dc-poprad-assets/main/OC_logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
