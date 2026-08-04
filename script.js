@@ -99,7 +99,6 @@ async function requestWakeLock() {
   try {
     if ('wakeLock' in navigator) {
       wakeLock = await navigator.wakeLock.request('screen');
-      console.log('Oche Coach: Displej zostane svietiť.');
     }
   } catch (err) {
     console.error('Wake Lock chyba:', err);
@@ -109,7 +108,6 @@ function releaseWakeLock() {
   if (wakeLock !== null) {
     wakeLock.release().then(() => {
       wakeLock = null;
-      console.log('Oche Coach: Displej sa už môže normálne vypínať.');
     });
   }
 }
@@ -118,17 +116,22 @@ document.addEventListener('visibilitychange', async () => {
     requestWakeLock();
   }
 });
-// ---------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', () => { applyLanguage(); checkOnboarding(); setupEventListeners(); applyFreemiumLocks(); });
 
 function applyLanguage() {
-    document.getElementById('t_welcomeTitle').innerText = dict[currentLang].welcomeTitle; document.getElementById('t_welcomeText').innerText = dict[currentLang].welcomeText;
-    document.getElementById('btnUnderstand').innerText = dict[currentLang].btnUnderstand; document.getElementById('t_duration').innerText = dict[currentLang].duration;
-    document.getElementById('t_focus').innerText = dict[currentLang].focus; document.getElementById('t_tournament').innerText = dict[currentLang].tournament;
-    document.getElementById('enterBtn').innerText = dict[currentLang].btnGoToOche; document.getElementById('t_back').innerText = dict[currentLang].back;
-    document.getElementById('t_exit').innerText = dict[currentLang].exit; document.getElementById('btnChangeGame').innerText = dict[currentLang].btnChange;
+    document.getElementById('t_welcomeTitle').innerText = dict[currentLang].welcomeTitle; 
+    document.getElementById('t_welcomeText').innerText = dict[currentLang].welcomeText;
+    document.getElementById('btnUnderstand').innerText = dict[currentLang].btnUnderstand; 
+    document.getElementById('t_duration').innerText = dict[currentLang].duration;
+    document.getElementById('t_focus').innerText = dict[currentLang].focus; 
+    document.getElementById('t_tournament').innerText = dict[currentLang].tournament;
+    document.getElementById('enterBtn').innerText = dict[currentLang].btnGoToOche; 
+    document.getElementById('t_back').innerText = dict[currentLang].back;
+    document.getElementById('t_exit').innerText = dict[currentLang].exit; 
+    document.getElementById('btnChangeGame').innerText = dict[currentLang].btnChange;
     document.getElementById('hintReadyBtn').innerText = dict[currentLang].btnGameOn;
+    
     if(document.getElementById('t_coachTipText')) document.getElementById('t_coachTipText').innerText = dict[currentLang].coachTip;
 
     if(document.getElementById('t_summaryQuote')) {
@@ -153,7 +156,6 @@ function applyLanguage() {
         if(document.getElementById('summaryDynamicText')) document.getElementById('summaryDynamicText').innerText = dynText;
     }
 
-    // PREKLADY INŠTALAČNÉHO OKNA MUSIA BYŤ TU VONKU
     if(document.getElementById('t_installTitle')) document.getElementById('t_installTitle').innerText = dict[currentLang].installTitle;
     if(document.getElementById('t_installText')) document.getElementById('t_installText').innerText = dict[currentLang].installText;
     if(document.getElementById('btnInstallConfirm')) document.getElementById('btnInstallConfirm').innerText = dict[currentLang].btnInstall;
@@ -176,10 +178,12 @@ function applyLanguage() {
     if(document.getElementById('t_salesPoint3')) document.getElementById('t_salesPoint3').innerText = dict[currentLang].salesP3;
     if(document.getElementById('t_salesPriceSub')) document.getElementById('t_salesPriceSub').innerText = dict[currentLang].salesPriceSub;
     if(document.getElementById('btnBuyPremium')) document.getElementById('btnBuyPremium').innerText = dict[currentLang].btnBuy;
-    if(document.getElementById('btnSalesToProfile')) document.getElementById('btnSalesToProfile').innerText = dict[currentLang].salesToProfile;
+
+    if (document.getElementById('btnSalesToProfile')) {
+        document.getElementById('btnSalesToProfile').innerText = currentUserProfile ? dict[currentLang].salesToProfile : (currentLang === 'EN' ? "Already have an account? Log in" : "Už máš účet? Prihlás sa");
+    }
 
     updateMainBtnText();
-
 }
 
 function updateMainBtnText() {
@@ -192,12 +196,38 @@ function updateMainBtnText() {
 }
 
 function checkOnboarding() {
+    const infoBtn = document.getElementById('infoToggle');
     if (currentUserProfile && currentUserProfile.is_premium) {
         document.getElementById('onboardingView').classList.add('hidden');
         document.getElementById('lobbyView').classList.remove('hidden');
+        if (infoBtn) {
+            infoBtn.innerText = "★ PROFIL ★";
+            infoBtn.classList.add('premium-active');
+            infoBtn.style.backgroundColor = "";
+            infoBtn.style.color = "";
+            infoBtn.style.borderColor = "";
+            infoBtn.style.fontWeight = "";
+        }
     } else {
         document.getElementById('onboardingView').classList.remove('hidden');
         document.getElementById('lobbyView').classList.add('hidden');
+        if (infoBtn) {
+            if (!currentUserProfile) {
+                infoBtn.innerText = currentLang === 'EN' ? "LOGIN" : "PRIHLÁSENIE";
+                infoBtn.classList.remove('premium-active');
+                infoBtn.style.backgroundColor = "";
+                infoBtn.style.color = "";
+                infoBtn.style.borderColor = "";
+                infoBtn.style.fontWeight = "";
+            } else {
+                infoBtn.innerText = "GO PREMIUM";
+                infoBtn.classList.remove('premium-active');
+                infoBtn.style.backgroundColor = "#22c55e";
+                infoBtn.style.color = "var(--bg-dark)";
+                infoBtn.style.borderColor = "#22c55e";
+                infoBtn.style.fontWeight = "700";
+            }
+        }
     }
 }
 
@@ -259,7 +289,7 @@ function saveAndGetStats(mins) {
 }
 
 function showSummary() {
-    releaseWakeLock(); // <--- ZAVOLANIE WAKE LOCK (PRIDANÉ)
+    releaseWakeLock();
     if (timerId) { clearInterval(timerId); timerId = null; }
     document.querySelectorAll('.app-container').forEach(el => el.classList.add('hidden'));
     
@@ -293,14 +323,17 @@ function showSummary() {
     applyLanguage();
     
     document.getElementById('summaryView').classList.remove('hidden');
-    document.getElementById('langToggle').classList.remove('hidden'); document.getElementById('infoToggle').classList.remove('hidden');
+    document.getElementById('langToggle').classList.remove('hidden'); 
+    document.getElementById('infoToggle').classList.remove('hidden');
 }
 
 function resetToLobby() {
-    releaseWakeLock(); // <--- ZAVOLANIE WAKE LOCK (PRIDANÉ)
+    releaseWakeLock();
     if (timerId) { clearInterval(timerId); timerId = null; }
-    document.querySelectorAll('.app-container').forEach(el => el.classList.add('hidden')); document.getElementById('lobbyView').classList.remove('hidden');
-    document.getElementById('langToggle').classList.remove('hidden'); document.getElementById('infoToggle').classList.remove('hidden');
+    document.querySelectorAll('.app-container').forEach(el => el.classList.add('hidden')); 
+    document.getElementById('lobbyView').classList.remove('hidden');
+    document.getElementById('langToggle').classList.remove('hidden'); 
+    document.getElementById('infoToggle').classList.remove('hidden');
     document.getElementById('timerDisplay').classList.remove('hidden');
     if(document.getElementById('coachTipBox')) { document.getElementById('coachTipBox').classList.add('invisible'); document.getElementById('coachTipBox').classList.remove('hidden'); }
     if(document.getElementById('completionRing')) { document.getElementById('completionRing').classList.add('hidden'); document.getElementById('completionRing').classList.remove('ring-animate'); }
@@ -344,13 +377,8 @@ function setupEventListeners() {
             document.getElementById('authMessage').innerText = "";
             document.getElementById('tabRegister').click();
         } else {
-            // Tvoj reálny odkaz na Sandbox produkt zo Stripe
             const stripeLink = "https://buy.stripe.com/test_14A6oJb5wdlh1cM0oVafS00"; 
-            
-            // Pribalíme ID hráča, aby webhook po zaplatení vedel, komu aktivovať Premium
             const checkoutUrl = `${stripeLink}?client_reference_id=${currentUserProfile.id}`;
-            
-            // Presmerovanie hráča priamo do platobnej brány
             window.location.href = checkoutUrl;
         }
     });
@@ -359,14 +387,11 @@ function setupEventListeners() {
         e.preventDefault(); 
         
         if (!currentUserProfile) {
-            // HRÁČ NIE JE PRIHLÁSENÝ -> VYZVI HO NA PRIHLÁSENIE
             document.getElementById('authModal').classList.remove('hidden');
             document.getElementById('authMessage').innerText = "";
         } else if (currentUserProfile && !currentUserProfile.is_premium) {
-            // HRÁČ JE PRIHLÁSENÝ ALE FREE -> OTVOR SALES PITCH
             document.getElementById('salesModal').classList.remove('hidden');
         } else {
-            // HRÁČ JE PREMIUM -> UKÁŽ PROFIL
             document.getElementById('t_profWeek').innerText = dict[currentLang].profWeek;
             document.getElementById('t_profMonth').innerText = dict[currentLang].profMonth;
             document.getElementById('t_profTotal').innerText = dict[currentLang].profTotal;
@@ -421,6 +446,7 @@ function setupEventListeners() {
             }
         }
     });
+
     document.getElementById('closeProfileBtn').addEventListener('click', () => {
         document.getElementById('profileModal').classList.add('hidden');
     });
@@ -489,7 +515,7 @@ function setupEventListeners() {
         authMessage.innerText = dict[currentLang].msgProcessing;
         authMessage.style.color = "var(--text-dim)";
 
-        const { data, error } = await supabase.auth.resetPasswordForEmail(email);
+        const { error } = await supabase.auth.resetPasswordForEmail(email);
 
         if (error) {
             authMessage.innerText = dict[currentLang].msgErrReset;
@@ -548,7 +574,7 @@ function setupEventListeners() {
         authMessage.innerText = dict[currentLang].msgCheck;
         authMessage.style.color = "var(--text-dim)";
 
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
             email: email,
             password: password
         });
@@ -590,8 +616,12 @@ function setupEventListeners() {
                 openSalesModal();
                 return;
             }
-            document.querySelectorAll('.tourney-tile').forEach(t => t.classList.remove('active')); document.querySelectorAll('.time-tile').forEach(t => t.classList.remove('active')); this.classList.add('active');
-            selectedTime = parseInt(this.getAttribute('data-val')); const mixTile = document.getElementById('mixTile');
+            document.querySelectorAll('.tourney-tile').forEach(t => t.classList.remove('active')); 
+            document.querySelectorAll('.time-tile').forEach(t => t.classList.remove('active')); 
+            this.classList.add('active');
+            
+            selectedTime = parseInt(this.getAttribute('data-val')); 
+            const mixTile = document.getElementById('mixTile');
             window.isTourneySeq = false;
             
             const isPremium = currentUserProfile && currentUserProfile.is_premium;
@@ -621,10 +651,17 @@ function setupEventListeners() {
         }); 
     });
 
-    document.getElementById('warmUpSeqBtn').addEventListener('click', function() { document.querySelectorAll('.tile').forEach(t => t.classList.remove('active')); this.classList.add('active'); selectedTime = 15; selectedFocus = 'Tournament'; window.isTourneySeq = true; checkRequirements(); });
+    document.getElementById('warmUpSeqBtn').addEventListener('click', function() { 
+        document.querySelectorAll('.tile').forEach(t => t.classList.remove('active')); 
+        this.classList.add('active'); 
+        selectedTime = 15; 
+        selectedFocus = 'Tournament'; 
+        window.isTourneySeq = true; 
+        checkRequirements(); 
+    });
 
     document.getElementById('enterBtn').addEventListener('click', () => {
-        requestWakeLock(); // <--- ZAVOLANIE WAKE LOCK (PRIDANÉ)
+        requestWakeLock();
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         currentActiveGames = gamesDB[selectedFocus]; 
         
@@ -635,6 +672,7 @@ function setupEventListeners() {
         else if (selectedTime === 180) currentBlockPlan = [10, 10, 10, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15]; 
         else if (selectedFocus === 'Tournament') currentBlockPlan = [10, 5]; 
         else currentBlockPlan = [15];
+        
         currentBlockIndex = 0;
         currentGameIndex = getSmartGameIndex(currentActiveGames, currentBlockPlan[currentBlockIndex], -1);
         updateHintTexts();
@@ -642,10 +680,19 @@ function setupEventListeners() {
         if (window.isTourneySeq) document.getElementById('btnChangeGame').classList.add('hidden');
         else document.getElementById('btnChangeGame').classList.remove('hidden');
 
-        document.getElementById('lobbyView').classList.add('hidden'); document.getElementById('hintView').classList.remove('hidden'); document.getElementById('langToggle').classList.add('hidden'); document.getElementById('infoToggle').classList.add('hidden');
+        document.getElementById('lobbyView').classList.add('hidden'); 
+        document.getElementById('hintView').classList.remove('hidden'); 
+        document.getElementById('langToggle').classList.add('hidden'); 
+        document.getElementById('infoToggle').classList.add('hidden');
     });
 
-    document.querySelector('.back-trigger').addEventListener('click', () => { document.getElementById('hintView').classList.add('hidden'); document.getElementById('lobbyView').classList.remove('hidden'); document.getElementById('langToggle').classList.remove('hidden'); document.getElementById('infoToggle').classList.remove('hidden'); });
+    document.querySelector('.back-trigger').addEventListener('click', () => { 
+        document.getElementById('hintView').classList.add('hidden'); 
+        document.getElementById('lobbyView').classList.remove('hidden'); 
+        document.getElementById('langToggle').classList.remove('hidden'); 
+        document.getElementById('infoToggle').classList.remove('hidden'); 
+    });
+
     document.getElementById('btnChangeGame').addEventListener('click', () => { 
         let bm = currentBlockPlan[currentBlockIndex];
         let attempts = 0;
@@ -655,51 +702,16 @@ function setupEventListeners() {
         updateHintTexts(); 
     });
 
-    function getSmartGameIndex(list, blockMins, prevIndex) {
-        if (window.isTourneySeq) return currentBlockIndex;
-        
-        if (!window.playedSessionGames) {
-            window.playedSessionGames = [];
-        }
-
-        let progress = currentBlockPlan.length > 1 ? currentBlockIndex / (currentBlockPlan.length - 1) : 0;
-        let targetPhase = 1;
-        if (progress > 0.75) targetPhase = 4;
-        else if (progress > 0.50) targetPhase = 3;
-        else if (progress > 0.20) targetPhase = 2;
-        
-        let valid = [];
-        for (let i = 0; i < list.length; i++) {
-            if (!list[i].phases.includes(targetPhase)) continue;
-            if ((list[i].en_title === "MasterCaller" || list[i].en_title === "Game 201 DO") && blockMins !== 15 && blockMins !== 20) continue;
-            if (selectedFocus === 'Mix' && currentBlockIndex > 0 && gamesDB['Tournament'].includes(list[i])) continue;
-            valid.push(i);
-        }
-        
-        if (valid.length === 0) {
-            for (let i = 0; i < list.length; i++) {
-                if ((list[i].en_title === "MasterCaller" || list[i].en_title === "Game 201 DO") && blockMins !== 15 && blockMins !== 20) continue;
-                if (selectedFocus === 'Mix' && currentBlockIndex > 0 && gamesDB['Tournament'].includes(list[i])) continue;
-                valid.push(i);
-            }
-        }
-
-        let unplayed = valid.filter(i => !window.playedSessionGames.includes(i));
-        
-        if (unplayed.length === 0) {
-            window.playedSessionGames = window.playedSessionGames.filter(id => !valid.includes(id));
-            unplayed = valid;
-        }
-        
-        let chosen = unplayed[Math.floor(Math.random() * unplayed.length)];
-        window.playedSessionGames.push(chosen);
-        return chosen;
-    }
-
     document.getElementById('hintReadyBtn').addEventListener('click', () => {
         const game = currentActiveGames[currentGameIndex];
-        document.getElementById('blockCategory').innerText = selectedFocus.toUpperCase(); document.getElementById('blockTitle').innerText = currentLang === 'EN' ? game.en_title : game.sk_title; document.getElementById('blockShortInstructions').innerText = currentLang === 'EN' ? game.en_short : game.sk_short;
-        document.getElementById('hintView').classList.add('hidden'); document.getElementById('timerView').classList.remove('hidden'); document.getElementById('timerDisplay').classList.remove('hidden');
+        document.getElementById('blockCategory').innerText = selectedFocus.toUpperCase(); 
+        document.getElementById('blockTitle').innerText = currentLang === 'EN' ? game.en_title : game.sk_title; 
+        document.getElementById('blockShortInstructions').innerText = currentLang === 'EN' ? game.en_short : game.sk_short;
+        
+        document.getElementById('hintView').classList.add('hidden'); 
+        document.getElementById('timerView').classList.remove('hidden'); 
+        document.getElementById('timerDisplay').classList.remove('hidden');
+        
         if(document.getElementById('coachTipBox')) { document.getElementById('coachTipBox').classList.add('invisible'); document.getElementById('coachTipBox').classList.remove('hidden'); }
         if(document.getElementById('completionRing')) { document.getElementById('completionRing').classList.add('hidden'); document.getElementById('completionRing').classList.remove('ring-animate'); }
         
@@ -726,7 +738,8 @@ function setupEventListeners() {
             targetInterval = 0;
         }
         
-        currentState = 'RUNNING'; startTimer();
+        currentState = 'RUNNING'; 
+        startTimer();
     });
 
     document.getElementById('mainBtn').addEventListener('click', () => {
@@ -738,7 +751,9 @@ function setupEventListeners() {
             else {
                 currentGameIndex = getSmartGameIndex(currentActiveGames, currentBlockPlan[currentBlockIndex], currentGameIndex); 
                 updateHintTexts();
-                document.getElementById('timerView').classList.add('hidden'); document.getElementById('hintView').classList.remove('hidden'); document.getElementById('timerDisplay').classList.remove('hidden');
+                document.getElementById('timerView').classList.add('hidden'); 
+                document.getElementById('hintView').classList.remove('hidden'); 
+                document.getElementById('timerDisplay').classList.remove('hidden');
                 if(document.getElementById('coachTipBox')) { document.getElementById('coachTipBox').classList.add('invisible'); document.getElementById('coachTipBox').classList.remove('hidden'); }
                 if(document.getElementById('completionRing')) { document.getElementById('completionRing').classList.add('hidden'); document.getElementById('completionRing').classList.remove('ring-animate'); }
             }
@@ -749,7 +764,51 @@ function setupEventListeners() {
     document.getElementById('btnDone').addEventListener('click', resetToLobby);
 }
 
-function checkRequirements() { if (selectedTime && selectedFocus && isDbLoaded) document.getElementById('enterBtn').removeAttribute('disabled'); else document.getElementById('enterBtn').setAttribute('disabled', 'true'); }
+function getSmartGameIndex(list, blockMins, prevIndex) {
+    if (window.isTourneySeq) return currentBlockIndex;
+    
+    if (!window.playedSessionGames) {
+        window.playedSessionGames = [];
+    }
+
+    let progress = currentBlockPlan.length > 1 ? currentBlockIndex / (currentBlockPlan.length - 1) : 0;
+    let targetPhase = 1;
+    if (progress > 0.75) targetPhase = 4;
+    else if (progress > 0.50) targetPhase = 3;
+    else if (progress > 0.20) targetPhase = 2;
+    
+    let valid = [];
+    for (let i = 0; i < list.length; i++) {
+        if (!list[i].phases.includes(targetPhase)) continue;
+        if ((list[i].en_title === "MasterCaller" || list[i].en_title === "Game 201 DO") && blockMins !== 15 && blockMins !== 20) continue;
+        if (selectedFocus === 'Mix' && currentBlockIndex > 0 && gamesDB['Tournament'].includes(list[i])) continue;
+        valid.push(i);
+    }
+    
+    if (valid.length === 0) {
+        for (let i = 0; i < list.length; i++) {
+            if ((list[i].en_title === "MasterCaller" || list[i].en_title === "Game 201 DO") && blockMins !== 15 && blockMins !== 20) continue;
+            if (selectedFocus === 'Mix' && currentBlockIndex > 0 && gamesDB['Tournament'].includes(list[i])) continue;
+            valid.push(i);
+        }
+    }
+
+    let unplayed = valid.filter(i => !window.playedSessionGames.includes(i));
+    
+    if (unplayed.length === 0) {
+        window.playedSessionGames = window.playedSessionGames.filter(id => !valid.includes(id));
+        unplayed = valid;
+    }
+    
+    let chosen = unplayed[Math.floor(Math.random() * unplayed.length)];
+    window.playedSessionGames.push(chosen);
+    return chosen;
+}
+
+function checkRequirements() { 
+    if (selectedTime && selectedFocus && isDbLoaded) document.getElementById('enterBtn').removeAttribute('disabled'); 
+    else document.getElementById('enterBtn').setAttribute('disabled', 'true'); 
+}
 
 function openSalesModal() {
     if (currentUserProfile) {
@@ -763,7 +822,6 @@ function openSalesModal() {
 function applyFreemiumLocks() {
     const isPremium = currentUserProfile && currentUserProfile.is_premium;
     
-    // 1. Zamykanie časov
     document.querySelectorAll('.time-tile').forEach(tile => {
         const val = parseInt(tile.getAttribute('data-val'));
         if (val > 30 && !isPremium) {
@@ -777,7 +835,6 @@ function applyFreemiumLocks() {
         }
     });
 
-    // 2. Zamykanie hry MIX
     const mixTile = document.getElementById('mixTile');
     if (mixTile) {
         if (!isPremium) {
@@ -794,7 +851,13 @@ function applyFreemiumLocks() {
     checkRequirements();
 }
 
-function updateHintTexts() { if(currentActiveGames.length === 0 || !currentActiveGames[currentGameIndex]) return; const g = currentActiveGames[currentGameIndex]; document.getElementById('hintCategory').innerText = selectedFocus.toUpperCase(); document.getElementById('hintTitle').innerText = currentLang === 'EN' ? g.en_title : g.sk_title; document.getElementById('hintLongText').innerText = currentLang === 'EN' ? g.en_long : g.sk_long; }
+function updateHintTexts() { 
+    if(currentActiveGames.length === 0 || !currentActiveGames[currentGameIndex]) return; 
+    const g = currentActiveGames[currentGameIndex]; 
+    document.getElementById('hintCategory').innerText = selectedFocus.toUpperCase(); 
+    document.getElementById('hintTitle').innerText = currentLang === 'EN' ? g.en_title : g.sk_title; 
+    document.getElementById('hintLongText').innerText = currentLang === 'EN' ? g.en_long : g.sk_long; 
+}
 
 function startTimer() {
     if (timerId) clearInterval(timerId);
@@ -908,7 +971,6 @@ function loadDatabase() {
     })
     .catch(err => {
         console.error("Database Load Error:", err);
-        alert("Nepodarilo sa načítať tréningy z databázy. Skontroluj internetové pripojenie.");
     });
 }
 
@@ -930,7 +992,6 @@ function parseCSV(str) {
 
 async function sparujDCID(userId, firstName, lastName, email) {
     try {
-        console.log(`[DEBUG] Začínam párovanie pre: ${firstName} ${lastName} (${email})`);
         const MASTER_USERS_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSWWdHKHJ8Te8u3ddgaXLlqAEmFHkgBQj3I8YByX5nkYp2LTIt6twgsCRtVel7sp3ueWpOaeTEmP34s/pub?gid=0&single=true&output=csv";
         
         const normalize = (str) => {
@@ -971,41 +1032,29 @@ async function sparujDCID(userId, firstName, lastName, email) {
         const userFullName = normalize(firstName) + normalize(lastName);
         const userFullNameRev = normalize(lastName) + normalize(firstName); 
 
-        console.log(`[DEBUG] Sťahujem dáta z Google Sheets...`);
         const response = await fetch(MASTER_USERS_URL);
-        if (!response.ok) {
-            console.error(`[DEBUG] Zlyhalo stiahnutie CSV. Status: ${response.status}`);
-            return; 
-        }
+        if (!response.ok) return; 
+
         const csvText = await response.text();
         const rows = parseCSV(csvText);
-        console.log(`[DEBUG] CSV stiahnuté, počet riadkov: ${rows.length}`);
-        if (rows.length > 1) console.log(`[DEBUG] Ukážka prvého dátového riadku z DB:`, rows[1]);
 
         let matchedDcId = null;
 
         for (let i = 1; i < rows.length; i++) {
             const row = rows[i];
-            if (row.length < 4 || !row[2]) {
-                console.log(`[DEBUG] Riadok ${i} preskočený (málo stĺpcov alebo chýba DC_ID v stĺpci C). Obsah:`, row);
-                continue; 
-            }
+            if (row.length < 4 || !row[2]) continue; 
             
             const rowDcId = row[2].trim();
             const rowEmail = normalizeEmail(row[3]);
             const rowFullName = normalize(row[1]) + normalize(row[0]);
-            
-            console.log(`[DEBUG] Porovnávam riadok ${i}: DB_Meno [${rowFullName}] vs Hráč [${userFullName}] | DB_Email [${rowEmail}] vs Hráč [${userEmail}] | DC_ID [${rowDcId}]`);
 
             if (userEmail && rowEmail && userEmail === rowEmail) {
                 matchedDcId = rowDcId;
-                console.log(`[DEBUG] Zhoda e-mailu. DC_ID: ${matchedDcId}`);
                 break;
             }
             
             if (userFullName === rowFullName || userFullNameRev === rowFullName) {
                 matchedDcId = rowDcId;
-                console.log(`[DEBUG] Zhoda mena. DC_ID: ${matchedDcId}`);
                 break;
             }
         }
@@ -1023,7 +1072,6 @@ async function sparujDCID(userId, firstName, lastName, email) {
                 
                 if (dist1 <= 2 || dist2 <= 2) {
                     matchedDcId = rowDcId;
-                    console.log(`[DEBUG] Čiastočná zhoda (preklep). DC_ID: ${matchedDcId}`);
                     break;
                 }
             }
@@ -1033,8 +1081,6 @@ async function sparujDCID(userId, firstName, lastName, email) {
             let attempts = 0;
             const maxAttempts = 5;
             let errorOccurred = true;
-
-            console.log(`[DEBUG] Zapisujem DC_ID (${matchedDcId}) do Supabase...`);
 
             while (errorOccurred && attempts < maxAttempts) {
                 attempts++;
@@ -1047,36 +1093,26 @@ async function sparujDCID(userId, firstName, lastName, email) {
 
                 if (!error) {
                     errorOccurred = false;
-                    console.log(`[DEBUG] ÚSPECH! DC_ID zapísané na ${attempts}. pokus.`);
-                } else {
-                    console.warn(`[DEBUG] Pokus ${attempts} zlyhal:`, error);
                 }
             }
-        } else {
-            console.log(`[DEBUG] Nenašlo sa žiadne DC_ID.`);
         }
-
     } catch (error) {
-        console.error("[DEBUG] Chyba záchrannej siete:", error);
+        console.error("Chyba párovania:", error);
     }
 }
-// --- PWA CUSTOM INSTALL PROMPT ---
+
 let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Zabráni automatickému zobrazeniu defaultného Chrome okna
     e.preventDefault();
     deferredPrompt = e;
     
-    // PRIDANÁ KONTROLA: Zistenie, či už bežíme z plochy (standalone)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-    if (isStandalone) return; // Ak sme na ploche, kód sa tu zastaví a banner nevyskočí
+    if (isStandalone) return; 
 
-    // NOVÁ KONTROLA: Ak hráč už banner krížikom zavrel, kód sa tu zastaví
     if (localStorage.getItem('ocheCoach_pwa_dismissed') === 'true') return;
 
     const pwaInstallModal = document.getElementById('pwaInstallModal');
-    // Ak HTML okno existuje, zobrazí sa po 2.5 sekundách
     if (pwaInstallModal) {
         setTimeout(() => {
             pwaInstallModal.classList.remove('hidden');
@@ -1085,7 +1121,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 
-// Bezpečné pridanie funkcií tlačidlám až keď sa bezpečne načíta HTML
 document.addEventListener('DOMContentLoaded', () => {
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     const closeInstallBtn = document.getElementById('closeInstallBtn');
@@ -1099,7 +1134,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                console.log(`Užívateľ reagoval na inštaláciu: ${outcome}`);
                 deferredPrompt = null;
             }
         });
@@ -1117,6 +1151,6 @@ window.addEventListener('appinstalled', () => {
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     if(pwaInstallModal) pwaInstallModal.classList.add('hidden');
     deferredPrompt = null;
-    console.log('Oche Coach bol úspešne nainštalovaný!');
 });
+
 loadDatabase();
