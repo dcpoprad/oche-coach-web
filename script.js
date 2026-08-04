@@ -1105,11 +1105,11 @@ let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
-    deferredPrompt = e;
     
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches || window.navigator.standalone || localStorage.getItem('ocheCoach_installed') === 'true';
     if (isStandalone) return; 
-
+    
+    deferredPrompt = e;
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     if (pwaInstallModal) {
         pwaInstallModal.classList.remove('hidden');
@@ -1119,19 +1119,27 @@ window.addEventListener('beforeinstallprompt', (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const pwaInstallModal = document.getElementById('pwaInstallModal');
-    if (pwaInstallModal) pwaInstallModal.classList.add('hidden');
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches || window.navigator.standalone || localStorage.getItem('ocheCoach_installed') === 'true';
+    
+    if (pwaInstallModal) {
+        if (isStandalone) {
+            pwaInstallModal.remove();
+        } else {
+            pwaInstallModal.classList.add('hidden');
+        }
+    }
     const closeInstallBtn = document.getElementById('closeInstallBtn');
 
     if (btnInstallConfirm) {
         btnInstallConfirm.addEventListener('click', async () => {
-            pwaInstallModal.style.transform = 'translate(-50%, 150%)';
-            setTimeout(() => { pwaInstallModal.classList.add('hidden'); }, 400);
-            
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
             }
+            
+            pwaInstallModal.style.transform = 'translate(-50%, 150%)';
+            setTimeout(() => { pwaInstallModal.classList.add('hidden'); }, 400);
         });
     }
 
@@ -1144,9 +1152,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('appinstalled', () => {
+    localStorage.setItem('ocheCoach_installed', 'true');
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     if(pwaInstallModal) pwaInstallModal.classList.add('hidden');
     deferredPrompt = null;
 });
-
 loadDatabase();
