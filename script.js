@@ -180,25 +180,15 @@ function applyLanguage() {
 
     updateMainBtnText();
 
-    const infoBtn = document.getElementById('infoToggle');
-    if (infoBtn) {
-        if (!currentUserProfile) {
-            infoBtn.innerText = currentLang === 'EN' ? "LOGIN" : "PRIHLÁSENIE";
-            infoBtn.classList.remove('premium-active');
-        } else if (currentUserProfile && !currentUserProfile.is_premium) {
-            infoBtn.innerText = "GO PREMIUM";
-            infoBtn.classList.remove('premium-active');
-        } else {
-            infoBtn.innerText = "★ PROFIL ★";
-            infoBtn.classList.add('premium-active');
-        }
-    }
 }
 
 function updateMainBtnText() {
-    const btn = document.getElementById('mainBtn'); if(!btn) return;
-    if (currentState === 'PAUSED') btn.innerText = dict[currentLang].btnResume; else if (currentState === 'RUNNING') btn.innerText = dict[currentLang].btnPause;
-    else if (currentState === 'FINISHED') btn.innerText = dict[currentLang].btnNextBlock; else btn.innerText = dict[currentLang].btnPause;
+    const btn = document.getElementById('mainBtn'); 
+    if(!btn) return;
+    if (currentState === 'PAUSED') btn.innerText = dict[currentLang].btnResume; 
+    else if (currentState === 'RUNNING') btn.innerText = dict[currentLang].btnPause;
+    else if (currentState === 'FINISHED') btn.innerText = dict[currentLang].btnNextBlock; 
+    else btn.innerText = dict[currentLang].btnPause;
 }
 
 function checkOnboarding() {
@@ -1081,6 +1071,9 @@ window.addEventListener('beforeinstallprompt', (e) => {
     // PRIDANÁ KONTROLA: Zistenie, či už bežíme z plochy (standalone)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     if (isStandalone) return; // Ak sme na ploche, kód sa tu zastaví a banner nevyskočí
+
+    // NOVÁ KONTROLA: Ak hráč už banner krížikom zavrel, kód sa tu zastaví
+    if (localStorage.getItem('ocheCoach_pwa_dismissed') === 'true') return;
 
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     // Ak HTML okno existuje, zobrazí sa po 2.5 sekundách
