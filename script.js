@@ -1110,21 +1110,17 @@ window.addEventListener('beforeinstallprompt', (e) => {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
     if (isStandalone) return; 
 
-    if (localStorage.getItem('ocheCoach_pwa_dismissed') === 'true') return;
-
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     if (pwaInstallModal) {
-        setTimeout(() => {
-            pwaInstallModal.classList.remove('hidden');
-            setTimeout(() => { pwaInstallModal.style.transform = 'translate(-50%, 0)'; }, 50);
-        }, 2500);
+        pwaInstallModal.classList.remove('hidden');
+        setTimeout(() => { pwaInstallModal.style.transform = 'translate(-50%, 0)'; }, 50);
     }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     const pwaInstallModal = document.getElementById('pwaInstallModal');
+    if (pwaInstallModal) pwaInstallModal.classList.add('hidden');
     const closeInstallBtn = document.getElementById('closeInstallBtn');
-    const btnInstallConfirm = document.getElementById('btnInstallConfirm');
 
     if (btnInstallConfirm) {
         btnInstallConfirm.addEventListener('click', async () => {
