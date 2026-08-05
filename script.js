@@ -1101,53 +1101,43 @@ async function sparujDCID(userId, firstName, lastName, email) {
     }
 }
 
-// --- PWA INSTALL BANNER LOGIKA ---
-let isAppInstalled = localStorage.getItem('ocheCoach_installed') === 'true';
-let installBannerShown = false;
-let deferredPrompt = null;
+let deferredPrompt;
 
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
-                         window.matchMedia('(display-mode: fullscreen)').matches || 
-                         window.matchMedia('(display-mode: minimal-ui)').matches || 
-                         window.navigator.standalone;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches || window.navigator.standalone || localStorage.getItem('ocheCoach_installed') === 'true';
     
-    // Ak je appka na ploche, alebo je už v pamäti označená ako nainštalovaná -> blokujeme banner
-    if (isStandalone || isAppInstalled || installBannerShown) return; 
+    const debugText = 'SA:' + window.matchMedia('(display-mode: standalone)').matches +
+                       ' MU:' + window.matchMedia('(display-mode: minimal-ui)').matches +
+                       ' FS:' + window.matchMedia('(display-mode: fullscreen)').matches +
+                       ' NS:' + window.navigator.standalone +
+                       ' LS:' + localStorage.getItem('ocheCoach_installed');
+    const installTextEl = document.getElementById('t_installText');
+    if (installTextEl) installTextEl.innerText = debugText;
+    
+    if (isStandalone) return; 
     
     deferredPrompt = e;
-    installBannerShown = true;
-    
     const pwaInstallModal = document.getElementById('pwaInstallModal');
     if (pwaInstallModal) {
-        // Počkáme 3 sekundy po načítaní appky, nech to nevyskočí hneď do tváre
-        setTimeout(() => {
-            pwaInstallModal.classList.remove('hidden');
-            setTimeout(() => { pwaInstallModal.style.transform = 'translate(-50%, 0)'; }, 50);
-        }, 3000); 
+        pwaInstallModal.classList.remove('hidden');
+        setTimeout(() => { pwaInstallModal.style.transform = 'translate(-50%, 0)'; }, 50);
     }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
     const pwaInstallModal = document.getElementById('pwaInstallModal');
-    const closeInstallBtn = document.getElementById('closeInstallBtn');
-    const btnInstallConfirm = document.getElementById('btnInstallConfirm'); // Opravené priradenie premennej
-    
-    const isStandaloneNow = window.matchMedia('(display-mode: standalone)').matches || 
-                            window.matchMedia('(display-mode: fullscreen)').matches || 
-                            window.matchMedia('(display-mode: minimal-ui)').matches || 
-                            window.navigator.standalone || 
-                            isAppInstalled;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches || window.navigator.standalone || localStorage.getItem('ocheCoach_installed') === 'true';
     
     if (pwaInstallModal) {
-        if (isStandaloneNow) {
-            pwaInstallModal.remove(); // Úplne odstráni HTML bannera, ak sme v appke
+        if (isStandalone) {
+            pwaInstallModal.remove();
         } else {
             pwaInstallModal.classList.add('hidden');
         }
     }
+    const closeInstallBtn = document.getElementById('closeInstallBtn');
 
     if (btnInstallConfirm) {
         btnInstallConfirm.addEventListener('click', async () => {
@@ -1156,37 +1146,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
                     localStorage.setItem('ocheCoach_installed', 'true');
-                    isAppInstalled = true;
                 }
                 deferredPrompt = null;
             }
             
-            if (pwaInstallModal) {
-                pwaInstallModal.style.transform = 'translate(-50%, 150%)';
-                setTimeout(() => { pwaInstallModal.classList.add('hidden'); }, 400);
-            }
+            pwaInstallModal.style.transform = 'translate(-50%, 150%)';
+            setTimeout(() => { pwaInstallModal.classList.add('hidden'); }, 400);
         });
     }
 
     if (closeInstallBtn) {
         closeInstallBtn.addEventListener('click', () => {
-            if (pwaInstallModal) {
-                pwaInstallModal.style.transform = 'translate(-50%, 150%)';
-                setTimeout(() => { pwaInstallModal.classList.add('hidden'); }, 400);
-            }
+            pwaInstallModal.style.transform = 'translate(-50%, 150%)';
+            setTimeout(() => { pwaInstallModal.classList.add('hidden'); }, 400);
         });
     }
 });
 
 window.addEventListener('appinstalled', () => {
     localStorage.setItem('ocheCoach_installed', 'true');
-    isAppInstalled = true;
-    installBannerShown = true;
-    
     const pwaInstallModal = document.getElementById('pwaInstallModal');
-    if (pwaInstallModal) pwaInstallModal.remove();
+    if(pwaInstallModal) pwaInstallModal.classList.add('hidden');
     deferredPrompt = null;
 });
-
-// START APLIKÁCIE
 loadDatabase();
