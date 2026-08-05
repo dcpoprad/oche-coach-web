@@ -1107,15 +1107,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.matchMedia('(display-mode: fullscreen)').matches || window.matchMedia('(display-mode: minimal-ui)').matches || window.navigator.standalone || localStorage.getItem('ocheCoach_installed') === 'true';
-    
-    const debugText = 'SA:' + window.matchMedia('(display-mode: standalone)').matches +
-                       ' MU:' + window.matchMedia('(display-mode: minimal-ui)').matches +
-                       ' FS:' + window.matchMedia('(display-mode: fullscreen)').matches +
-                       ' NS:' + window.navigator.standalone +
-                       ' LS:' + localStorage.getItem('ocheCoach_installed');
-    const installTextEl = document.getElementById('t_installText');
-    if (installTextEl) installTextEl.innerText = debugText;
-    
     if (isStandalone) return; 
     
     deferredPrompt = e;
