@@ -377,7 +377,7 @@ function setupEventListeners() {
             document.getElementById('authMessage').innerText = "";
             document.getElementById('tabRegister').click();
         } else {
-            const stripeLink = "https://buy.stripe.com/test_14A6oJb5wdlh1cM0oVafS00"; 
+            const stripeLink = "https://buy.stripe.com/bJeeVf0isgqX7fS1dceQM00";
             const checkoutUrl = `${stripeLink}?client_reference_id=${currentUserProfile.id}`;
             window.location.href = checkoutUrl;
         }
